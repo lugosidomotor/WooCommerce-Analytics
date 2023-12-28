@@ -5,27 +5,37 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import plotly.express as px
 
-# Load data
+# Load sales data
 @st.cache_data
-def load_data():
-    data = pd.read_csv('eladasok.txt', delimiter='\t')
-    data['Date Created'] = pd.to_datetime(data['Date Created'])
-    data['month'] = data['Date Created'].dt.to_period('M').dt.to_timestamp('M') + MonthEnd(0)
-    data['year'] = data['Date Created'].dt.year
-    return data
+def load_sales_data():
+    sales_data = pd.read_csv('eladasok.txt', delimiter='\t')
+    sales_data['Date Created'] = pd.to_datetime(sales_data['Date Created'])
+    sales_data['month'] = sales_data['Date Created'].dt.to_period('M').dt.to_timestamp('M') + MonthEnd(0)
+    sales_data['year'] = sales_data['Date Created'].dt.year
+    return sales_data
 
-data = load_data()
+# Load postal code data
+@st.cache_data
+def load_postal_code_data():
+    postal_code_data = pd.read_csv('iranyitoszamok.csv', delimiter=',')
+    return postal_code_data
+
+sales_data = load_sales_data()
+postal_code_data = load_postal_code_data()
 
 # Streamlit title
-st.title('Sales Data Visualization')
+st.title('📈 Sales Data Visualization')
+
+# Merge sales data with postal code data
+merged_data = pd.merge(sales_data, postal_code_data, how='left', left_on='Shipping Postcode', right_on='Postal_Code')
 
 # Time Series Analysis (Monthly Sales)
-monthly_sales = data.groupby('month').agg({'Product Gross Revenue': 'sum'}).reset_index()
+monthly_sales = sales_data.groupby('month').agg({'Product Gross Revenue': 'sum'}).reset_index()
 fig_time_series = px.line(monthly_sales, x='month', y='Product Gross Revenue', title='Monthly Sales Over Time')
 st.plotly_chart(fig_time_series)
 
 # Monthly summary with year
-monthly_data = data.groupby(['year', 'month']).agg({
+monthly_data = sales_data.groupby(['year', 'month']).agg({
     'Product Gross Revenue': 'sum', 
     'Order ID': 'nunique'
 }).reset_index()
@@ -38,45 +48,10 @@ monthly_data['month_name'] = monthly_data['month'].dt.strftime('%B')
 monthly_data['year_str'] = monthly_data['year'].astype(str)
 
 # Yearly summary
-yearly_data = data.groupby('year').agg({
+yearly_data = sales_data.groupby('year').agg({
     'Product Gross Revenue': 'sum', 
     'Order ID': 'nunique'
 }).reset_index()
-
-# Dual-axis monthly plot
-fig_monthly = make_subplots(specs=[[{"secondary_y": True}]])
-
-# Gross Revenue bar chart
-fig_monthly.add_trace(
-    go.Bar(
-        x=monthly_data['month'], 
-        y=monthly_data['Product Gross Revenue'],
-        name='Gross Revenue',
-        text=monthly_data['Product Gross Revenue'],
-        textposition='outside'
-    ),
-    secondary_y=False,
-)
-
-# Number of Orders line chart
-fig_monthly.add_trace(
-    go.Scatter(
-        x=monthly_data['month'], 
-        y=monthly_data['Order ID'],
-        name='Number of Orders',
-        mode='lines+markers'
-    ),
-    secondary_y=True,
-)
-
-# Update axes titles
-fig_monthly.update_yaxes(title_text="Gross Revenue", secondary_y=False)
-fig_monthly.update_yaxes(title_text="Number of Orders", secondary_y=True)
-fig_monthly.update_layout(
-    title='Monthly Gross Revenue and Number of Orders',
-    xaxis_title='Month'
-)
-st.plotly_chart(fig_monthly)
 
 # Yearly plot
 fig_yearly = px.bar(
@@ -126,12 +101,20 @@ fig_avg_order_value = px.line(
 st.plotly_chart(fig_avg_order_value)
 
 # Category-wise Sales Analysis (Top 20 Categories)
-category_sales = data.groupby('Category Name').agg({'Product Gross Revenue': 'sum'}).reset_index()
+category_sales = sales_data.groupby('Category Name').agg({'Product Gross Revenue': 'sum'}).reset_index()
 category_sales = category_sales.sort_values(by='Product Gross Revenue', ascending=False).head(20)
 fig_category_sales = px.bar(category_sales, x='Category Name', y='Product Gross Revenue', title='Top 20 Categories by Sales')
 st.plotly_chart(fig_category_sales)
 
 # Product Performance Analysis (Top 20 Products)
-product_performance = data.groupby('Product Name').agg({'Product Gross Revenue': 'sum'}).sort_values(by='Product Gross Revenue', ascending=False).head(20)
+product_performance = sales_data.groupby('Product Name').agg({'Product Gross Revenue': 'sum'}).sort_values(by='Product Gross Revenue', ascending=False).head(20)
 fig_product_performance = px.bar(product_performance, x=product_performance.index, y='Product Gross Revenue', title='Top 20 Products by Sales')
 st.plotly_chart(fig_product_performance)
+
+# Geographical Analysis by County
+county_sales = merged_data.groupby('County').agg({'Product Gross Revenue': 'sum'}).reset_index()
+county_sales = county_sales.sort_values(by='Product Gross Revenue', ascending=False)
+
+# Plotting Sales by County
+fig_county_sales = px.bar(county_sales, x='County', y='Product Gross Revenue', title='Sales by County')
+st.plotly_chart(fig_county_sales)
