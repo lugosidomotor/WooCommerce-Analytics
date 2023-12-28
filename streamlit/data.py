@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 
 # Load data
-@st.cache
+@st.cache_data
 def load_data():
     data = pd.read_csv('eladasok.txt', delimiter='\t')
     data['Date Created'] = pd.to_datetime(data['Date Created'])
