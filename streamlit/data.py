@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from pandas.tseries.offsets import MonthEnd
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
 
 # Load data
 @st.cache
@@ -30,17 +32,42 @@ yearly_data = data.groupby('year').agg({
     'Order ID': 'nunique'
 }).reset_index()
 
-# Plotly monthly plot
-fig_monthly = px.bar(
-    monthly_data, 
-    x='month', 
-    y='Product Gross Revenue',
-    text='Product Gross Revenue',
-    hover_data=['Order ID'],
-    labels={'Product Gross Revenue': 'Bruttó érték', 'month': 'Hónap', 'Order ID': 'Eladott Megrendelések Száma'},
-    title='Havi Bruttó Értékek és Eladott Megrendelések Száma'
+# Modified Plotly monthly plot with dual-axis
+fig_monthly = make_subplots(specs=[[{"secondary_y": True}]])
+
+# Add Product Gross Revenue to the main y-axis
+fig_monthly.add_trace(
+    go.Bar(
+        x=monthly_data['month'], 
+        y=monthly_data['Product Gross Revenue'],
+        name='Bruttó érték',
+        text=monthly_data['Product Gross Revenue'],
+        textposition='outside'
+    ),
+    secondary_y=False,
 )
-fig_monthly.update_traces(texttemplate='%{text:.2s}', textposition='outside')
+
+# Add Order ID to the secondary y-axis
+fig_monthly.add_trace(
+    go.Scatter(
+        x=monthly_data['month'], 
+        y=monthly_data['Order ID'],
+        name='Eladott Megrendelések Száma',
+        mode='lines+markers'
+    ),
+    secondary_y=True,
+)
+
+# Set y-axes titles
+fig_monthly.update_yaxes(title_text="Bruttó érték", secondary_y=False)
+fig_monthly.update_yaxes(title_text="Eladott Megrendelések Száma", secondary_y=True)
+
+# Set other chart properties
+fig_monthly.update_layout(
+    title='Havi Bruttó Értékek és Eladott Megrendelések Száma',
+    xaxis_title='Hónap'
+)
+
 st.plotly_chart(fig_monthly)
 
 # Plotly yearly plot
