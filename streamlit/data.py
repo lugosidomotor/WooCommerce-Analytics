@@ -19,6 +19,11 @@ data = load_data()
 # Streamlit title
 st.title('Sales Data Visualization')
 
+# Time Series Analysis (Monthly Sales)
+monthly_sales = data.groupby('month').agg({'Product Gross Revenue': 'sum'}).reset_index()
+fig_time_series = px.line(monthly_sales, x='month', y='Product Gross Revenue', title='Monthly Sales Over Time')
+st.plotly_chart(fig_time_series)
+
 # Monthly summary with year
 monthly_data = data.groupby(['year', 'month']).agg({
     'Product Gross Revenue': 'sum', 
@@ -119,3 +124,14 @@ fig_avg_order_value = px.line(
     title='Monthly Average Order Value Over the Years'
 )
 st.plotly_chart(fig_avg_order_value)
+
+# Category-wise Sales Analysis (Top 20 Categories)
+category_sales = data.groupby('Category Name').agg({'Product Gross Revenue': 'sum'}).reset_index()
+category_sales = category_sales.sort_values(by='Product Gross Revenue', ascending=False).head(20)
+fig_category_sales = px.bar(category_sales, x='Category Name', y='Product Gross Revenue', title='Top 20 Categories by Sales')
+st.plotly_chart(fig_category_sales)
+
+# Product Performance Analysis (Top 20 Products)
+product_performance = data.groupby('Product Name').agg({'Product Gross Revenue': 'sum'}).sort_values(by='Product Gross Revenue', ascending=False).head(20)
+fig_product_performance = px.bar(product_performance, x=product_performance.index, y='Product Gross Revenue', title='Top 20 Products by Sales')
+st.plotly_chart(fig_product_performance)
