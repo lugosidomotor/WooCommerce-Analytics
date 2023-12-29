@@ -8,7 +8,7 @@ import plotly.express as px
 # Load sales data
 @st.cache_data
 def load_sales_data():
-    sales_data = pd.read_csv('eladasok.txt', delimiter='\t')
+    sales_data = pd.read_csv('sales.txt', delimiter='\t')
     sales_data['Date Created'] = pd.to_datetime(sales_data['Date Created'])
     sales_data['month'] = sales_data['Date Created'].dt.to_period('M').dt.to_timestamp('M') + MonthEnd(0)
     sales_data['year'] = sales_data['Date Created'].dt.year
