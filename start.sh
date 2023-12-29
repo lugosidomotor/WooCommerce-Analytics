@@ -24,5 +24,6 @@ docker exec -i woo-dump-mysql mysql --default-character-set=utf8 -uroot -padmin 
 docker exec -i woo-dump-mysql mysql -uroot -padmin --default-character-set=utf8 woo -e "SELECT os.order_id AS 'Order ID', os.date_created AS 'Date Created', os.total_sales AS 'Total Sales', pm1.meta_value AS 'Shipping Cost', pm2.meta_value AS 'Shipping Postcode', op.product_id AS 'Product ID', p.post_title AS 'Product Name', op.product_net_revenue AS 'Product Net Revenue', op.product_gross_revenue AS 'Product Gross Revenue', t.name AS 'Category Name' FROM wp_wc_order_stats os JOIN wp_wc_order_product_lookup op ON os.order_id = op.order_id JOIN wp_posts p ON op.product_id = p.ID JOIN wp_term_relationships tr ON p.ID = tr.object_id JOIN wp_term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id JOIN wp_terms t ON tt.term_id = t.term_id LEFT JOIN wp_postmeta pm1 ON os.order_id = pm1.post_id AND pm1.meta_key = '_order_shipping' LEFT JOIN wp_postmeta pm2 ON os.order_id = pm2.post_id AND pm2.meta_key = '_shipping_postcode' WHERE p.post_type = 'product' AND tt.taxonomy = 'product_cat';" > ./streamlit/sales.txt
 
 cd ./streamlit
+bash category_full_path.sh
 docker build -t streamlit-app .
 docker run -p 8501:8501 streamlit-app
