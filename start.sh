@@ -8,7 +8,21 @@ for i in {5..0}; do echo $i; sleep 1; done; echo "Docker stop complete!"
 # MySQL konténer indítása
 docker run --name woo-dump-mysql -e MYSQL_ROOT_PASSWORD=admin -d -p 3306:3306 mysql:latest
 
-for i in {30..0}; do echo $i; sleep 1; done; echo "Container start complete!"
+# Ellenőrzi, hogy a MySQL szerver kész-e
+for i in {1..60}; do
+    if docker exec woo-dump-mysql mysqladmin -uroot -padmin ping &> /dev/null; then
+        echo "MySQL is ready."
+        break
+    fi
+    echo "Waiting for MySQL..."
+    sleep 1
+done
+
+# Ha a ciklus lefutott, de a MySQL nem válaszolt, hibaüzenet jelenik meg
+if ! docker exec woo-dump-mysql mysqladmin -uroot -padmin ping &> /dev/null; then
+    echo "Error: MySQL did not become ready in time."
+    exit 1
+fi
 
 # Adatbázis-dump másolása a konténerbe
 docker cp dump.sql woo-dump-mysql:/dump.sql
