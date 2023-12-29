@@ -26,4 +26,7 @@ docker exec -i woo-dump-mysql mysql -uroot -padmin --default-character-set=utf8 
 cd ./streamlit
 bash category_full_path.sh
 docker build -t streamlit-app .
-docker run -p 8501:8501 streamlit-app
+
+docker stop streamlit
+docker rm -f streamlit
+docker run -p 8501:8501 --name streamlit streamlit-app
