@@ -2,8 +2,8 @@
 
 # Fájl elérési utak
 categories_file="./categories.txt"
-sales_file="./sales.txt"
-output_file="./eladasok.txt"
+sales_file="./raw_sales.txt"
+output_file="./sales.txt"
 
 # Létrehoz egy asszociatív tömböt a kategóriák teljes útjával
 declare -A category_paths
