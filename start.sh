@@ -27,8 +27,14 @@ fi
 # Adatbázis-dump másolása a konténerbe
 docker cp dump.sql woo-dump-mysql:/dump.sql
 
-# Adatbázis-dump importálása
-docker exec -i woo-dump-mysql mysql -uroot -padmin <<< "CREATE DATABASE woo; USE woo; SOURCE /dump.sql;"
+# Attempting to import the database dump until it succeeds
+while ! docker exec -i woo-dump-mysql mysql -uroot -padmin <<< "CREATE DATABASE IF NOT EXISTS woo; USE woo; SOURCE /dump.sql;"
+do
+    echo "Attempting to import the database..."
+    sleep 5 # Brief pause between attempts
+done
+
+echo "Database import successfully completed."
 
 # Lekérdezés futtatása
 docker exec -i woo-dump-mysql mysql -uroot -padmin woo <<< "SELECT * FROM wp_wc_order_stats;"
