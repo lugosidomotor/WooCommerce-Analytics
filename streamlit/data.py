@@ -17,7 +17,7 @@ def load_sales_data():
 # Load postal code data
 @st.cache_data
 def load_postal_code_data():
-    postal_code_data = pd.read_csv('iranyitoszamok.csv', delimiter=',')
+    postal_code_data = pd.read_csv('postal_codes.csv', delimiter=',')
     return postal_code_data
 
 sales_data = load_sales_data()
