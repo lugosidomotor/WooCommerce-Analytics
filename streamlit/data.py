@@ -20,11 +20,23 @@ def load_postal_code_data():
     postal_code_data = pd.read_csv('postal_codes.csv', delimiter=',')
     return postal_code_data
 
+# Function to calculate returning customer ratio
+def calculate_returning_customer_ratio(sales_data):
+    unique_customer_hashes = sales_data['Customer Email Hash'].nunique()
+    returning_customers_count = sales_data.groupby('Customer Email Hash')['Order ID'].nunique()
+    returning_customers_count = returning_customers_count[returning_customers_count > 1].count()
+    returning_customer_ratio = returning_customers_count / unique_customer_hashes
+    return returning_customer_ratio
+
 sales_data = load_sales_data()
 postal_code_data = load_postal_code_data()
 
 # Streamlit title
 st.title('📈 Sales Data Visualization')
+
+# Calculate and display returning customer ratio
+returning_ratio = calculate_returning_customer_ratio(sales_data)
+st.write(f"Ratio of Returning Customers: {returning_ratio:.2%}")
 
 # Merge sales data with postal code data
 merged_data = pd.merge(sales_data, postal_code_data, how='left', left_on='Shipping Postcode', right_on='Postal_Code')
