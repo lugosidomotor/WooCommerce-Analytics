@@ -5,10 +5,10 @@ docker rm -f woo-dump-mysql
 
 for i in {5..0}; do echo $i; sleep 1; done; echo "Docker stop complete!"
 
-# MySQL konténer indítása
+# Start MySQL container
 docker run --name woo-dump-mysql -e MYSQL_ROOT_PASSWORD=admin -d -p 3306:3306 mysql:latest
 
-# Ellenőrzi, hogy a MySQL szerver kész-e
+# Check if the MySQL server is ready
 for i in {1..60}; do
     if docker exec woo-dump-mysql mysqladmin -uroot -padmin ping &> /dev/null; then
         echo "MySQL is ready."
@@ -18,13 +18,13 @@ for i in {1..60}; do
     sleep 1
 done
 
-# Ha a ciklus lefutott, de a MySQL nem válaszolt, hibaüzenet jelenik meg
+# If the loop completes but MySQL is not responding, display an error message
 if ! docker exec woo-dump-mysql mysqladmin -uroot -padmin ping &> /dev/null; then
     echo "Error: MySQL did not become ready in time."
     exit 1
 fi
 
-# Adatbázis-dump másolása a konténerbe
+# Copy database dump to the container
 docker cp dump.sql woo-dump-mysql:/dump.sql
 
 # Attempting to import the database dump until it succeeds
@@ -36,7 +36,7 @@ done
 
 echo "Database import successfully completed."
 
-# Lekérdezés futtatása
+# Execute query
 docker exec -i woo-dump-mysql mysql -uroot -padmin woo <<< "SELECT * FROM wp_wc_order_stats;"
 
 docker exec -i woo-dump-mysql mysql --default-character-set=utf8 -uroot -padmin woo <<< "WITH RECURSIVE CategoryChain AS (SELECT tt.term_id, tt.parent, t.name FROM wp_term_taxonomy AS tt INNER JOIN wp_terms AS t ON tt.term_id = t.term_id WHERE tt.taxonomy = 'product_cat' AND tt.parent = 0 UNION ALL SELECT tt.term_id, tt.parent, CONCAT(cc.name, ' > ', t.name) FROM wp_term_taxonomy AS tt INNER JOIN wp_terms AS t ON tt.term_id = t.term_id INNER JOIN CategoryChain AS cc ON tt.parent = cc.term_id WHERE tt.taxonomy = 'product_cat') SELECT * FROM CategoryChain;" > ./streamlit/categories.txt
