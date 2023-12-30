@@ -1,4 +1,4 @@
-# WooCommerce Sales Dashboard from DB Dump
+# WooCommerce Sales Dashboard
 
 ## Introduction
 This project provides a sales dashboard for WooCommerce data, using MySQL for database management and Streamlit for interactive data visualization. It's designed to help you gain insights into sales trends, customer behaviors, and product performance based on your WooCommerce data.
@@ -27,16 +27,6 @@ WooCommerce-Analytics/
 ├── dump.sql
 ├── [other project files]
 ```
-
-
-## First Step: Prepare Your WooCommerce Data
-1. **Obtain Your WooCommerce Data Dump:**
-   - Export your WooCommerce database as a `.sql` file.
-   - Name the file `dump.sql`.
-
-2. **Place `dump.sql` in the Project Directory:**
-   - Download or copy your `dump.sql` file.
-   - Place it alongside the `start.sh` script in the cloned repository.
 
 ## Installation and Setup
 1. **Clone the Repository:**
