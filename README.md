@@ -6,9 +6,6 @@ This project provides a sales dashboard for WooCommerce data, using MySQL for da
 ## Prerequisites
 Before you begin, ensure you have the following installed:
 - Docker
-- Streamlit
-- Python 3
-- Pandas and Plotly Python libraries
 
 ## First Step: Prepare Your WooCommerce Data
 1. **Obtain Your WooCommerce Data Dump:**
