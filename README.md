@@ -1,4 +1,4 @@
-# WooCommerce Sales Dashboard
+# WooCommerce Sales Dashboard from DB Dump
 
 ## Introduction
 This project provides a sales dashboard for WooCommerce data, using MySQL for database management and Streamlit for interactive data visualization. It's designed to help you gain insights into sales trends, customer behaviors, and product performance based on your WooCommerce data.
