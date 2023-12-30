@@ -1,4 +1,4 @@
-# WooCommerce Sales Dashboard
+# WooCommerce Sales Dashboard from DB Dump
 
 ## Introduction
 This project provides a sales dashboard for WooCommerce data, using MySQL for database management and Streamlit for interactive data visualization. It's designed to help you gain insights into sales trends, customer behaviors, and product performance based on your WooCommerce data.
@@ -49,9 +49,9 @@ cd WooCommerce-Analytics
 2. **Start the Database and Import Data:**
 - To initialize the MySQL Docker container, import your WooCommerce data, and start the Streamlit application, execute the `start.sh` script with sudo privileges:
 
-  ```
-  sudo bash start.sh
-  ```
+```
+sudo bash start.sh
+```
 
 3. **Access the Streamlit Application:**
 - After running the `start.sh` script, the Streamlit application should automatically start and be accessible at `http://localhost:8501`.
