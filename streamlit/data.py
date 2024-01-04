@@ -7,7 +7,7 @@ import plotly.express as px
 from datetime import datetime
 
 st.set_page_config(
-    page_title="WooCommerce Dashboard",
+    page_title="WooCommerce ",
     page_icon="📊",
     layout="wide",
 )
@@ -149,6 +149,16 @@ fig_avg_order_value = px.line(
 )
 st.plotly_chart(fig_avg_order_value)
 
+with st.sidebar:
+    year_options = ['All-time'] + sorted(sales_data['year'].unique().tolist(), reverse=True)
+    selected_year_for_plots = st.selectbox("📆 Select Year for Plots", year_options)
+
+# Function to filter data based on year selection
+def filter_data_for_plots(data, selected_year):
+    if selected_year != 'All-time':
+        return data[data['year'] == selected_year]
+    return data
+
 # Category-wise Sales Analysis with grouped categories
 def extract_secondary_category(category_chain):
     parts = category_chain.split(' > ')
@@ -158,21 +168,24 @@ def extract_secondary_category(category_chain):
         return "N/A"
 
 sales_data['Secondary Category'] = sales_data['Category Name'].apply(extract_secondary_category)
-category_performance = sales_data.groupby('Secondary Category').agg({'Product Gross Revenue': 'sum'}).reset_index()
+category_performance_data = filter_data_for_plots(sales_data, selected_year_for_plots)
+category_performance = category_performance_data.groupby('Secondary Category').agg({'Product Gross Revenue': 'sum'}).reset_index()
 category_performance = category_performance.sort_values(by='Product Gross Revenue', ascending=False)
 fig_secondary_category_performance = px.bar(category_performance, x='Secondary Category', y='Product Gross Revenue', title='Performance by Category groups')
 st.plotly_chart(fig_secondary_category_performance)
 
 # Category-wise Sales Analysis (Top 20 Categories)
-category_sales = sales_data.groupby('Category Name').agg({'Product Gross Revenue': 'sum'}).reset_index()
-category_sales = category_sales.sort_values(by='Product Gross Revenue', ascending=False).head(20)
-fig_category_sales = px.bar(category_sales, x='Category Name', y='Product Gross Revenue', title='Top 20 Categories by Sales')
-st.plotly_chart(fig_category_sales)
+filtered_category_sales_data = filter_data_for_plots(sales_data, selected_year_for_plots)
+top_category_sales = filtered_category_sales_data.groupby('Category Name').agg({'Product Gross Revenue': 'sum'}).reset_index()
+top_category_sales = top_category_sales.sort_values(by='Product Gross Revenue', ascending=False).head(20)
+fig_top_category_sales = px.bar(top_category_sales, x='Category Name', y='Product Gross Revenue', title='Top 20 Categories by Sales')
+st.plotly_chart(fig_top_category_sales)
 
 # Product Performance Analysis (Top 20 Products)
-product_performance = sales_data.groupby('Product Name').agg({'Product Gross Revenue': 'sum'}).sort_values(by='Product Gross Revenue', ascending=False).head(20)
-fig_product_performance = px.bar(product_performance, x=product_performance.index, y='Product Gross Revenue', title='Top 20 Products by Sales')
-st.plotly_chart(fig_product_performance)
+filtered_product_performance_data = filter_data_for_plots(sales_data, selected_year_for_plots)
+top_product_performance = filtered_product_performance_data.groupby('Product Name').agg({'Product Gross Revenue': 'sum'}).sort_values(by='Product Gross Revenue', ascending=False).head(20)
+fig_top_product_performance = px.bar(top_product_performance, x=top_product_performance.index, y='Product Gross Revenue', title='Top 20 Products by Sales')
+st.plotly_chart(fig_top_product_performance)
 
 # Yearly Sales Trends by Category
 full_years = sales_data['year'].value_counts()
