@@ -4,6 +4,7 @@ from pandas.tseries.offsets import MonthEnd
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import plotly.express as px
+from datetime import datetime
 
 # Load sales data
 @st.cache_data
@@ -27,6 +28,36 @@ def calculate_returning_customer_ratio(sales_data):
     returning_customers_count = returning_customers_count[returning_customers_count > 1].count()
     returning_customer_ratio = returning_customers_count / unique_customer_hashes
     return returning_customer_ratio
+
+# Function to format currency values with thousands separator
+def format_currency(value):
+    return "{:,.0f}".format(value).replace(',', '.')
+
+# Function to calculate the percentage change
+def calculate_percentage_change(current, previous):
+    if previous != 0:
+        return ((current - previous) / previous) * 100
+    else:
+        return 0
+
+# Function to format percentage change with colored signs for table
+def format_percentage_change_for_table(change):
+    if change < 0:
+        return f"<span style='color: red;'>- {abs(change):.0f}%</span>"
+    else:
+        return f"<span style='color: green;'>+ {change:.0f}%</span>"
+
+# Filter data for selected years and months
+def filter_data(year, month):
+    month_number = datetime.strptime(month, "%B").month
+    filtered_data = sales_data[(sales_data['year'] == year) & (sales_data['Date Created'].dt.month == month_number)]
+    return filtered_data['Product Gross Revenue'].sum()
+
+# Calculate YTD
+def calculate_ytd(year, month):
+    month_number = datetime.strptime(month, "%B").month
+    ytd_revenue = sales_data[(sales_data['year'] == year) & (sales_data['Date Created'].dt.month <= month_number)]['Product Gross Revenue'].sum()
+    return ytd_revenue
 
 sales_data = load_sales_data()
 postal_code_data = load_postal_code_data()
@@ -181,3 +212,56 @@ county_sales = county_sales.sort_values(by='Product Gross Revenue', ascending=Fa
 # Plotting Sales by County
 fig_county_sales = px.bar(county_sales, x='County', y='Product Gross Revenue', title='Sales by County')
 st.plotly_chart(fig_county_sales)
+
+st.header("⚖️ Year and Month Performance Comparison")
+
+current_year = datetime.now().year
+current_month = datetime.now().strftime('%B')
+
+months = sorted(list(sales_data['Date Created'].dt.strftime('%B').unique()))
+if current_month not in months:
+    current_month = months[0]
+
+years = sorted(sales_data['year'].unique(), reverse=True)
+
+if current_year not in years:
+    current_year_index = 0
+else:
+    current_year_index = years.index(current_year)
+
+previous_year_index = max(current_year_index - 1, 0)
+
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+    selected_year1 = st.selectbox('Select the first year:', years, index=previous_year_index)
+
+with col2:
+    selected_month1 = st.selectbox('Select the first month:', months, index=months.index(current_month))
+
+with col3:
+    selected_year2 = st.selectbox('Select the second year:', years, index=current_year_index)
+
+with col4:
+    selected_month2 = st.selectbox('Select the second month:', months, index=months.index(current_month))
+
+# Calculations
+rev1 = filter_data(selected_year1, selected_month1)
+rev2 = filter_data(selected_year2, selected_month2)
+ytd1 = calculate_ytd(selected_year1, selected_month1)
+ytd2 = calculate_ytd(selected_year2, selected_month2)
+
+rev_change = calculate_percentage_change(rev2, rev1)
+ytd_change = calculate_percentage_change(ytd2, ytd1)
+
+# Table for results
+data = {
+    "Description": ["Revenue", "YTD Revenue", "Percentage Change in Revenue", "Percentage Change in YTD Revenue"],
+    f"{selected_month1} {selected_year1}": [format_currency(rev1), format_currency(ytd1), "", ""],
+    f"{selected_month2} {selected_year2}": [format_currency(rev2), format_currency(ytd2), format_percentage_change_for_table(rev_change), format_percentage_change_for_table(ytd_change)]
+}
+
+df = pd.DataFrame(data)
+
+# Displaying the table with formatted percentage changes
+st.markdown(df.to_html(escape=False), unsafe_allow_html=True)
