@@ -270,4 +270,4 @@ data = {
 df = pd.DataFrame(data)
 
 # Displaying the table with formatted percentage changes
-st.markdown(df.to_html(escape=False), unsafe_allow_html=True)
+st.markdown(df.to_html(escape=False, index=False), unsafe_allow_html=True)
