@@ -137,6 +137,43 @@ product_performance = sales_data.groupby('Product Name').agg({'Product Gross Rev
 fig_product_performance = px.bar(product_performance, x=product_performance.index, y='Product Gross Revenue', title='Top 20 Products by Sales')
 st.plotly_chart(fig_product_performance)
 
+# Yearly Sales Trends by Category
+full_years = sales_data['year'].value_counts()
+full_years = full_years[full_years >= 12].index.tolist()
+annual_category_sales = sales_data[sales_data['year'].isin(full_years)]
+annual_category_sales = annual_category_sales.groupby(['Secondary Category', 'year']).agg({'Product Gross Revenue': 'sum'}).reset_index()
+
+annual_category_sales['year'] = annual_category_sales['year'].astype(str)
+annual_category_sales.sort_values(by='year', inplace=True)
+
+fig_annual_category_trends = px.line(
+    annual_category_sales,
+    x='year',
+    y='Product Gross Revenue',
+    color='Secondary Category',
+    title='Annual Sales Trends by Category'
+)
+
+fig_annual_category_trends.update_xaxes(type='category')
+
+st.plotly_chart(fig_annual_category_trends)
+
+# Monthly Sales Trends by Category
+if 'month' not in sales_data.columns:
+    sales_data['month'] = sales_data['Date Created'].dt.to_period('M').dt.to_timestamp('M') + MonthEnd(0)
+
+monthly_category_sales = sales_data[sales_data['year'].isin(full_years)]
+monthly_category_sales = monthly_category_sales.groupby(['Secondary Category', 'month']).agg({'Product Gross Revenue': 'sum'}).reset_index()
+
+fig_monthly_category_trends = px.line(
+    monthly_category_sales,
+    x='month',
+    y='Product Gross Revenue',
+    color='Secondary Category',
+    title='Monthly Sales Trends by Category'
+)
+st.plotly_chart(fig_monthly_category_trends)
+
 # Geographical Analysis by County
 county_sales = merged_data.groupby('County').agg({'Product Gross Revenue': 'sum'}).reset_index()
 county_sales = county_sales.sort_values(by='Product Gross Revenue', ascending=False)
