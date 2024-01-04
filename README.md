@@ -4,14 +4,14 @@
 
 <table>
   <tr>
-    <td><img src="misc/screenshot1.png" alt="Sales Data Visualization" width="50%"/></td>
-    <td><img src="misc/screenshot2.png" alt="Monthly Product Gross Revenue and Unique Orders" width="50%"/></td>
-    <td><img src="misc/screenshot3.png" alt="Monthly Average Order Value and Top Categories" width="50%"/></td>
+    <td><img src="misc/screenshot1.png" alt="Sales Data Visualization" width="100%"/></td>
+    <td><img src="misc/screenshot2.png" alt="Monthly Product Gross Revenue and Unique Orders" width="100%"/></td>
+    <td><img src="misc/screenshot3.png" alt="Monthly Average Order Value and Top Categories" width="100%"/></td>
   </tr>
   <tr>
-    <td><img src="misc/screenshot4.png" alt="Top Products by Sales and Sales by County" width="50%"/></td>
-    <td><img src="misc/screenshot5.png" alt="Monthly Average Order Value and Top Categories" width="50%"/></td>
-    <td><img src="misc/screenshot6.png" alt="Top Products by Sales and Sales by County" width="50%"/></td>
+    <td><img src="misc/screenshot4.png" alt="Top Products by Sales and Sales by County" width="100%"/></td>
+    <td><img src="misc/screenshot5.png" alt="Monthly Average Order Value and Top Categories" width="100%"/></td>
+    <td><img src="misc/screenshot6.png" alt="Top Products by Sales and Sales by County" width="100%"/></td>
   </tr>
 </table>
 
