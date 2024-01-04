@@ -6,6 +6,12 @@ import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
 
+st.set_page_config(
+    page_title="WooCommerce Dashboard",
+    page_icon="📊",
+    layout="wide",
+)
+
 # Load sales data
 @st.cache_data
 def load_sales_data():
