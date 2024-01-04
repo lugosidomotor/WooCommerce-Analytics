@@ -112,6 +112,20 @@ fig_avg_order_value = px.line(
 )
 st.plotly_chart(fig_avg_order_value)
 
+# Category-wise Sales Analysis with grouped categories
+def extract_secondary_category(category_chain):
+    parts = category_chain.split(' > ')
+    if len(parts) > 1:
+        return parts[1]
+    else:
+        return "N/A"
+
+sales_data['Secondary Category'] = sales_data['Category Name'].apply(extract_secondary_category)
+category_performance = sales_data.groupby('Secondary Category').agg({'Product Gross Revenue': 'sum'}).reset_index()
+category_performance = category_performance.sort_values(by='Product Gross Revenue', ascending=False)
+fig_secondary_category_performance = px.bar(category_performance, x='Secondary Category', y='Product Gross Revenue', title='Performance by Category groups')
+st.plotly_chart(fig_secondary_category_performance)
+
 # Category-wise Sales Analysis (Top 20 Categories)
 category_sales = sales_data.groupby('Category Name').agg({'Product Gross Revenue': 'sum'}).reset_index()
 category_sales = category_sales.sort_values(by='Product Gross Revenue', ascending=False).head(20)
